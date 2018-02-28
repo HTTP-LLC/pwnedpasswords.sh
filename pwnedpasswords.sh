@@ -33,8 +33,12 @@ pre_requisites()
 	fi
 
 # Check For Sha1sum || shasum Command (Wasnt On Mac By Default When Testing)
-	if ! [ -x "$(command -v sha1sum)" ]; then
-		echo "[-] ERROR: sha1sum is required, please install curl."
+	if [ -x "$(command -v sha1sum)" ]; then
+		sha="sha1sum"
+	elif [ -x "$(command -v sha1sum)" ]; then
+		sha="shasum"
+	else
+		echo "[-] ERROR: sha1sum or shasum is required, please install sha1sum or shasum."
 		exit 1
 	fi
 
@@ -44,7 +48,7 @@ pwned_password()
 {
 	local password sha1 short_sha1 sha1_suffix http_status http_body http_response
 	password="$1"
-	sha1=$(echo -n "$password" | sha1sum | awk '{print toupper($1)}')
+	sha1=$(echo -n "$password" | $sha | awk '{print toupper($1)}')
 	short_sha1=${sha1:0:5}
 	sha1_suffix=${sha1:5}
 
@@ -71,10 +75,8 @@ echo "[*] Checking Arguments...."
 
 # If Arguments Are Passed Then Check If Help Flag Is Used Else Set PASSWORD To The First Argument
 # If No Arguments Are Passed Prompt User For Password If Empty Exit
-if [ $# -gt '0' ]
-then
-	if [ $1 == '-h' ] || [ $1 == '--h' ] || [ $1 == '-help' ] || [ $1 == '--help' ]
-	then
+if [ $# -gt '0' ]; then
+	if [ $1 == '-h' ] || [ $1 == '--h' ] || [ $1 == '-help' ] || [ $1 == '--help' ]; then
 		usage
 		exit 0
 	else
@@ -85,8 +87,7 @@ else
 	echo "[~] Arguments Not Found..."
 	read -s -p "Please Enter Password -> " PASSWORD
 	echo
-	if [ -z "$PASSWORD" ]
-	then
+	if [ -z "$PASSWORD" ]; then
 		echo "[-] ERROR: Input Not Found.... Exiting"
 		exit 9
 	fi
