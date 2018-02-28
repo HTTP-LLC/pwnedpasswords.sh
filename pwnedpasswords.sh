@@ -2,12 +2,16 @@
 
 usage()
 {
-  printf "%b" "
+echo
+echo "[+] Printing Help"
+echo
+
+printf "%b" "
 This is a simple bash script for searching Troy Hunt's pwnedpassword API using the k-anonymity algorithm
 
 Usage
 
-  ${BASH_SOURCE[0]} [options] PASSWORD
+  $0 [options] PASSWORD
 
 Options:
 
@@ -22,10 +26,18 @@ Arguments:
 
 pre_requisites()
 {
+# Check For Curl Command
 	if ! [ -x "$(command -v curl)" ]; then
-		echo "ERROR: curl is required, please install curl."
+		echo "[-] ERROR: curl is required, please install curl."
 		exit 1
 	fi
+
+# Check For Sha1sum || shasum Command (Wasnt On Mac By Default When Testing)
+	if ! [ -x "$(command -v sha1sum)" ]; then
+		echo "[-] ERROR: sha1sum is required, please install curl."
+		exit 1
+	fi
+
 }
 
 pwned_password()
@@ -49,42 +61,50 @@ pwned_password()
 	return 0
 }
 
-OPTS=$(getopt -o ":h" -l "help" -n "$PROGRAM $COMMAND" -- "$@")
-eval set -- "${OPTS}"
-while true; do
-  case "$1" in
-    -h | --help )
-      usage
-      exit 0
-      ;;
-    -- )
-      shift
-      break
-      ;;
-    * )
-      break
-      ;;
-  esac
-done
-
-
- if [ -t 0 ]; then
- 	PASSWORD="$1"
-else
-	PASSWORD=$(cat /dev/stdin)
-fi
-
-if [ -z "${PASSWORD}" ]; then
-	echo "Enter password:"
-	read -s PASSWORD
-fi
-
+clear
+echo
+echo "[*] Checking Prerequisites..."
 pre_requisites
+echo "[+] Prerequisites Check Complete..."
+echo
+echo "[*] Checking Arguments...."
+echo
+
+# If Arguments Are Passed Then Check If Help Flag Is Used Else Set PASSWORD To The First Argument
+# If No Arguments Are Passed Prompt User For Password If Empty Exit
+if [ $# -gt '0' ]
+then
+	if [ $1 == '-h' ] || [ $1 == '--h' ] || [ $1 == '-help' ] || [ $1 == '--help' ]
+	then
+		usage
+		exit 0
+	else
+		PASSWORD="$1"
+		echo "[+] Arguments Check Complete..."
+	fi
+else
+	echo "[~] Arguments Not Found..."
+	read -s -p "Please Enter Password -> " PASSWORD
+	echo
+	echo
+	if [ -z "$PASSWORD" ]
+	then
+		echo "[-] ERROR: Input Not Found.... Exiting"
+		exit 9
+	fi
+	echo "[+] Arguments Check Complete..."
+fi
+
 pwned_password "${PASSWORD}"
 
 if [ -z "$MATCHES" ]; then
-	echo "This password has not appeared in any data breaches!"
+	echo
+	echo "[+] This password has not appeared in any data breaches!"
+	echo
+	exit 0
 else
-	echo "This password has appeared ${MATCHES} times in data breaches."
+	echo
+	echo "[!] This password has appeared ${MATCHES} times in data breaches."
 	exit 2
+	echo
 fi
