@@ -35,7 +35,7 @@ pre_requisites()
 # Check For Sha1sum || shasum Command (Wasnt On Mac By Default When Testing)
 	if [ -x "$(command -v sha1sum)" ]; then
 		sha="sha1sum"
-	elif [ -x "$(command -v sha1sum)" ]; then
+	elif [ -x "$(command -v shasum)" ]; then
 		sha="shasum"
 	else
 		echo "[-] ERROR: sha1sum or shasum is required, please install sha1sum or shasum."
