@@ -68,7 +68,6 @@ pre_requisites
 echo "[+] Prerequisites Check Complete..."
 echo
 echo "[*] Checking Arguments...."
-echo
 
 # If Arguments Are Passed Then Check If Help Flag Is Used Else Set PASSWORD To The First Argument
 # If No Arguments Are Passed Prompt User For Password If Empty Exit
@@ -85,7 +84,6 @@ then
 else
 	echo "[~] Arguments Not Found..."
 	read -s -p "Please Enter Password -> " PASSWORD
-	echo
 	echo
 	if [ -z "$PASSWORD" ]
 	then
